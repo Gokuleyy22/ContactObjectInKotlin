@@ -1,3 +1,5 @@
+package ContactObjectInKotlin
+
 data class Contact(private val contactBuilder: ContactBuilder) {
     var userName = contactBuilder.userName
     private var email = contactBuilder.email
