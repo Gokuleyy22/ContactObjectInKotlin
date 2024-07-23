@@ -1,6 +1,4 @@
-package ContactObjectInKotlin
-
-import java.util.*
+package contactObjectInKotlin
 
 data class Contact(private val contactBuilder: ContactBuilder) {
     var userName = contactBuilder.userName
