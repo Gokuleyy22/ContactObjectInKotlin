@@ -1,5 +1,7 @@
 package ContactObjectInKotlin
 
+import java.util.*
+
 data class Contact(private val contactBuilder: ContactBuilder) {
     var userName = contactBuilder.userName
     private var email = contactBuilder.email
@@ -73,7 +75,7 @@ data class PhoneNumber(private val countryCode: String, private val phoneNumber:
 }
 
 object ContactBuilder {
-    var userName: String? = ""
+    var userName: String = ""
     var email: String? = ""
     var phoneNumber: String? = ""
     private val emailRegex = Regex("^[a-zA-Z0-9]+[a-zA-Z0-9_.-]*@[a-zA-Z]+\\.[a-z]{2,3}$")
@@ -84,7 +86,7 @@ object ContactBuilder {
     fun setPhoneNumber(phoneNumber: PhoneNumber) = apply { this.phoneNumber = if(CheckRegexObject.checkRegexPattern(
             phoneRegex, phoneNumber.getPhoneNumber())) phoneNumber.getPhoneNumber() else null }
 
-    fun build(): Contact  = Contact(this)
+    fun build(): Contact?  = if (this.userName != "") Contact(this) else null
 }
 
 data class JobDescription(
@@ -97,36 +99,32 @@ data class JobDescription(
 
 object SortContacts {
     private var contactList: List<Contact> = listOf()
-    fun sortContacts(by: String = "username", order: String = "ascending", listOfContact: List<Contact>): List<Contact> {
-        when (order) {
-            "Ascending" -> this.contactList = sortByAscending(by,listOfContact)
-            "Descending" -> this.contactList = sortByDescending(by, listOfContact)
+
+    fun sortContacts(with: String = "username", order: String = "ascending", listOfContact: List<Contact>): List<Contact> {
+        when (order.lowercase()) {
+            "ascending" -> contactList = sortByAscending(with, listOfContact)
+            "descending" -> contactList = sortByDescending(with, listOfContact)
         }
-        return this.contactList
+        return contactList
     }
 
-    private fun sortByAscending(field: String, listOfContact: List<Contact>): List<Contact> {
-        when (field) {
-            "Username" -> listOfContact.sortedBy { it.userName }
-            "Email" -> listOfContact.sortedBy { it.getEmail() }
+    private fun sortByAscending(with: String, listOfContact: List<Contact>): List<Contact> {
+        return when (with.lowercase()) {
+            "username" -> listOfContact.sortedBy { it.userName }
+            "email" -> listOfContact.sortedBy { it.getEmail() }
+            else -> listOfContact
         }
-
-        return listOfContact
     }
 
-    private fun sortByDescending(field: String, listOfContact: List<Contact>): List<Contact> {
-        when (field) {
-            "Username" -> listOfContact.sortedBy { it.userName }
-            "Email" -> listOfContact.sortedBy { it.getEmail() }
+    private fun sortByDescending(with: String, listOfContact: List<Contact>): List<Contact> {
+        return when (with.lowercase()) {
+            "username" -> listOfContact.sortedByDescending { it.userName }
+            "email" -> listOfContact.sortedByDescending { it.getEmail() }
+            else -> listOfContact
         }
-
-        return listOfContact.reversed()
-    }
-
-    private fun sortByUserNameAscending() {
-
     }
 }
+
 
 enum class OrderBy(by: String) {
     Username("username"),
@@ -143,16 +141,16 @@ object CheckRegexObject {
 }
 
 fun main() {
-    val userName = UserName("Gokuleyy1", "Sri")
-    val userName1 = UserName("Gokuleyy2", "Sri")
-    val userName2 = UserName("Gokuleyy3", "Sri")
+    val userName1 = UserName("Aokuleyy1", "Sri")
+    val userName2 = UserName("Gokuleyy2", "Sri")
+    val userName3 = UserName("Cokuleyy3", "Sri")
     val addressPrimary1 = Address("10/20", "Street 1", district = "District", state = "State", country = "Country", pincode = 123456)
     val number = PhoneNumber("+91", "12324567890")
-    val contact1: Contact = ContactBuilder.setUserName(userName).setEmail("Aoogle123@gmail.com").setPhoneNumber(number).build()
-    val contact2: Contact = ContactBuilder.setUserName(userName1).setEmail("Boogle1231@gmail.com").setPhoneNumber(number).build()
-    val contact3: Contact = ContactBuilder.setUserName(userName2).setEmail("Coogle1232@gmail.com").setPhoneNumber(number).build()
+    val contact1: Contact? = ContactBuilder.setUserName(userName1).setEmail("Aoogle123@gmail.com").setPhoneNumber(number).build()
+    val contact2: Contact? = ContactBuilder.setUserName(userName2).setEmail("Boogle1231@gmail.com").setPhoneNumber(number).build()
+    val contact3: Contact? = ContactBuilder.setUserName(userName3).setEmail("Coogle1232@gmail.com").setPhoneNumber(number).build()
 
-    val listOfContact: List<Contact> = listOf(contact1,contact2,contact3)
+    val listOfContact: List<Contact> = listOf(contact1!!,contact2!!,contact3!!)
     println("${OrderBy.Email.name} ${Order.Descending.name}")
-    println(SortContacts.sortContacts(OrderBy.Email.name,Order.Descending.name, listOfContact))
+    println(SortContacts.sortContacts(OrderBy.Username.name,Order.Descending.name, listOfContact))
 }
