@@ -173,10 +173,26 @@ object SearchContacts {
     }
 
     private fun sortAndFilterContacts(input: String, listOfContact: List<Contact>): List<Contact> {
-        listOfContact.forEach { if (it.userName.contains(input, ignoreCase = true)) this.listOfContacts.add(it) }
+        listOfContact.forEach { if (it.userName.contains(input, ignoreCase = true) && it.userName.startsWith(input)) this.listOfContacts.add(it) else if (it.userName.contains(input, ignoreCase = true)) this.listOfContacts.add(it) }
 //        println("Given list $listOfContact")
 //        println("Returning list $listOfContacts")
-        return listOfContacts.sortedByDescending { it.userName }
+
+        return rankContacts(listOfContacts, input)
+    }
+
+    private fun rankContacts(listOfContact: List<Contact>, userInput: String): List<Contact> {
+        return listOfContact.map { contact ->
+            val rank = computeRank(contact, userInput)
+            contact to rank
+        }.sortedWith(compareBy({it.second}, {it.first.userName})).map { it.first }
+    }
+
+    private fun computeRank(contact: Contact, userInput: String): Int {
+        return when {
+            contact.userName.startsWith(userInput, ignoreCase = true) -> 1
+            contact.userName.contains(userInput, ignoreCase = true) -> 2
+            else -> 3
+        }
     }
 }
 
@@ -189,10 +205,10 @@ object CheckRegexObject {
 }
 
 fun main() {
-    val userName1 = UserName("Gokuleyy1", "Sri")
+    val userName1 = UserName("Gokuleyy1", "Si")
     val userName2 = UserName("Sruthi2", "Sri")
-    val userName3 = UserName("Jashwin3", "Sri")
-    val userName4 = UserName("Jashwin3", "Sri")
+    val userName3 = UserName("Jashwin3", "ri")
+    val userName4 = UserName("Thangapandi4", "Sri")
     val addressPrimary1 = Address("10/20", "Street 1", district = "District", state = "State", country = "Country", pincode = 123456)
     val number = PhoneNumber("+91", "12324567890")
     val contact1: Contact? = ContactBuilder.setUserName(userName1).setEmail("Aoogle123@gmail.com").setPhoneNumber(number).setContactType("family").build()
@@ -200,7 +216,7 @@ fun main() {
     val contact3: Contact? = ContactBuilder.setUserName(userName3).setEmail("Coogle123@gmail.com").setPhoneNumber(number).build()
     val contact4: Contact? = ContactBuilder.setUserName(userName4).setEmail("Doogle123@gmail.com").setPhoneNumber(number).build()
 
-    val listOfContact: List<Contact> = listOf(contact1!!,contact2!!,contact3!!)
+    val listOfContact: List<Contact> = listOf(contact1!!,contact2!!,contact3!!, contact4!!)
 
     println(contact1.getContactType())
 
